@@ -2,30 +2,44 @@
 
 #include "vec3.hpp"
 #include "ray.hpp"
+#include "utils.hpp"
 
 struct camera {
 	vec3 origin;
+
 	vec3 horizontal;
 	vec3 vertical;
 	vec3 focal_length;
 	vec3 lower_left_corner;
+	
+	vec3 back;
+	vec3 right;
+	vec3 up;
 
-	camera() {
-		constexpr auto ASPECT_RATIO = (double)16 / 9;
-		constexpr auto V_HEIGHT = 2;
-		constexpr auto V_WIDTH = ASPECT_RATIO * V_HEIGHT;
+	double lens_radius;
+
+	camera(vec3 origin, vec3 lookat, vec3 world_up, double vertical_fov, double aspect_ratio, double aperture, double focus_distance) : origin{origin} {
+		back = unit_vector(origin - lookat);
+		right = unit_vector(cross(world_up, back));
+		up = cross(back, right);
+
+		const auto v_height = 2 * tan(vertical_fov / 2);
+		const auto v_width = v_height * aspect_ratio;
+
 		constexpr auto FOCAL_LENGTH = 1;
 
-		origin = vec3(0, 0, 0);
+		horizontal = focus_distance * v_width * right;
+		vertical = focus_distance * v_height * up;
+		focal_length = focus_distance * FOCAL_LENGTH * -back;
 
-		horizontal = vec3(V_WIDTH, 0, 0);
-		vertical = vec3(0, V_HEIGHT, 0);
-		focal_length = vec3(0, 0, FOCAL_LENGTH);
+		lower_left_corner = origin + focal_length - (horizontal / 2) - (vertical / 2);
 
-		lower_left_corner = origin - focal_length - (horizontal / 2) - (vertical / 2);
+		lens_radius = aperture / 2;
 	}
 
 	ray shoot_ray(double h, double v) const {
-		return ray(origin, lower_left_corner - origin + h * horizontal + v * vertical);
+		vec3 random_start = lens_radius * random_in_unit_disk();
+		vec3 random_origin = origin + right * random_start.x + up * random_start.y;
+		return ray(random_origin, lower_left_corner - random_origin + h * horizontal + v * vertical);
 	}
 };

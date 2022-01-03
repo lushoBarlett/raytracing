@@ -7,9 +7,11 @@ struct sphere : hittable {
 	
 	vec3 center;
 	double radius;
+	std::shared_ptr<material> material_pointer;
 
 	sphere() = default;
-	sphere(const vec3& center, double radius) : center{center}, radius{radius} {}
+	sphere(const vec3& center, double radius, std::shared_ptr<material> material_pointer)
+	    : center{center}, radius{radius}, material_pointer{material_pointer} {}
 
 	virtual bool test_hit(const ray& r, double t_min, double t_max, hit& info) const override {
 		const auto distance = r.origin - center;
@@ -37,6 +39,7 @@ struct sphere : hittable {
 		info.point = r.at(info.parameter);
 		vec3 out_normal = unit_vector(info.point - center);
 		info.face_determination(r, out_normal);
+		info.material_pointer = material_pointer;
 		
 		return true;
 	}

@@ -42,6 +42,11 @@ struct vec3 {
 	float length() const {
 		return std::sqrt(length_squared());
 	}
+
+	bool zero() const {
+		const auto s = 1e-8;
+		return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s);
+	}
 };
 
 inline std::ostream& operator<<(std::ostream& out, const vec3& v) {
@@ -77,9 +82,10 @@ inline float dot(const vec3& u, const vec3& v) {
 }
 
 inline vec3 cross(const vec3& u, const vec3& v) {
-	return vec3(u.x * v.y - u.y * v.x,
-	            u.y * v.z - u.z * v.y,
-	            u.z * v.x - u.x * v.z);
+	return vec3(
+		u.y * v.z - v.y * u.z,
+		u.z * v.x - u.x * v.z,
+		u.x * v.y - u.y * v.x);
 }
 
 inline vec3 unit_vector(const vec3& v) {
@@ -87,4 +93,8 @@ inline vec3 unit_vector(const vec3& v) {
 		throw std::logic_error("null vector has no unit vector");
 
 	return v / v.length();
+}
+
+inline vec3 reflect(const vec3& v, const vec3& n) {
+	return v - 2 * dot(v, n) * n;
 }
