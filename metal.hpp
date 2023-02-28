@@ -16,7 +16,7 @@ struct metal : material {
 	virtual bool scatter(const ray& r_in, const hit& info, vec3& attenuation, ray& scattered) const override {
 		vec3 direction = reflect(unit_vector(r_in.direction), info.normal);
 		attenuation = color;
-		scattered = ray(info.point, direction + fuzzyness * random_in_unit_sphere());
+		scattered = ray(info.point, direction + fuzzyness * random_in_unit_sphere(), r_in.time);
 
 		return (dot(scattered.direction, info.normal) > 0);
 	}

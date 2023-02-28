@@ -17,8 +17,8 @@ constexpr double ASPECT_RATIO = (double)3 / 2;
 constexpr int WIDTH = 700;
 constexpr int HEIGHT = WIDTH / ASPECT_RATIO;
 
-constexpr int SAMPLES = 100;
-constexpr int MAX_RAY_DEPTH = 20;
+constexpr int SAMPLES = 20;
+constexpr int MAX_RAY_DEPTH = 5;
 
 vec3 ray_color(const ray& r, const hittable& world, int depth = 1) {
 	const vec3 white(1, 1, 1);
@@ -59,7 +59,9 @@ hittable_list random_scene() {
 					// diffuse
 					auto albedo = vec3_random() * vec3_random();
 					sphere_material = std::make_shared<lambertian>(albedo);
-					world.objects.push_back(std::make_shared<sphere>(center, 0.2, sphere_material));
+					auto moving_sphere = std::make_shared<sphere>(center, 0.2, sphere_material);
+					moving_sphere->velocity = vec3(0.0, 0.1, 0.0);
+					world.objects.push_back(moving_sphere);
 				} else if (choose_mat < 0.95) {
 					// metal
 					auto albedo = vec3_random(0.5, 1);

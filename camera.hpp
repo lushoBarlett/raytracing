@@ -18,7 +18,20 @@ struct camera {
 
 	double lens_radius;
 
-	camera(vec3 origin, vec3 lookat, vec3 world_up, double vertical_fov, double aspect_ratio, double aperture, double focus_distance) : origin{origin} {
+	double open_time;
+	double close_time;
+
+	camera(
+		vec3 origin,
+		vec3 lookat,
+		vec3 world_up,
+		double vertical_fov,
+		double aspect_ratio,
+		double aperture,
+		double focus_distance,
+		double open_time = 0.0,
+		double close_time = 0.0
+	) : origin{origin}, open_time{open_time}, close_time{close_time} {
 		back = unit_vector(origin - lookat);
 		right = unit_vector(cross(world_up, back));
 		up = cross(back, right);
@@ -40,6 +53,9 @@ struct camera {
 	ray shoot_ray(double h, double v) const {
 		vec3 random_start = lens_radius * random_in_unit_disk();
 		vec3 random_origin = origin + right * random_start.x + up * random_start.y;
-		return ray(random_origin, lower_left_corner - random_origin + h * horizontal + v * vertical);
+		vec3 position = h * horizontal + v * vertical;
+		double random_time = random_double(open_time, close_time);
+
+		return ray(random_origin, lower_left_corner - random_origin + position, random_time);
 	}
 };

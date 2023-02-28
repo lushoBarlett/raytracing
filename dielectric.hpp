@@ -25,7 +25,7 @@ struct dielectric : material {
 			: refract(unit_direction, info.normal, refraction_ratio);
 
 		attenuation = vec3(1, 1, 1);
-		scattered = ray(info.point, direction);
+		scattered = ray(info.point, direction, r_in.time);
 
 		return true;
 	}

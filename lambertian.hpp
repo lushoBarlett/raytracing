@@ -18,7 +18,7 @@ struct lambertian : material {
 			direction = info.normal;
 
 		attenuation = color;
-		scattered = ray(info.point, direction);
+		scattered = ray(info.point, direction, r_in.time);
 
 		return true;
 	}
