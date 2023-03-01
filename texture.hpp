@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "perlin.hpp"
 #include "utils.hpp"
 
 struct texture {
@@ -39,5 +40,17 @@ struct checker_texture : texture {
 		auto sines = sin(10 * p.x) * sin(10 * p.y) * sin(10 * p.z);
 
 		return (sines < 0 ? odd : even)->value(u, v, p);
+	}
+};
+
+struct noise_texture : texture {
+
+	perlin noise;
+	double scale;
+
+	noise_texture(double scale = 1) : scale{scale} {}
+
+	virtual vec3 value(double u, double v, const vec3& p) const override {
+		return vec3(1, 1, 1) * 0.5 * (1 + noise.at(scale * p));
 	}
 };

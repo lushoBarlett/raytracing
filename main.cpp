@@ -44,10 +44,15 @@ vec3 ray_color(const ray& r, const hittable& world, int depth = 1) {
 	return vec3_lerp(white, lightblue, t);
 }
 
-std::shared_ptr<lambertian> make_checker_texture() {
+std::shared_ptr<lambertian> make_checker_material() {
 	return std::make_shared<lambertian>(
 	    std::make_shared<checker_texture>(
 	        vec3(0.2, 0.3, 0.1), vec3(0.9, 0.9, 0.9)));
+}
+
+std::shared_ptr<lambertian> make_perlin_noise_material(double scale) {
+	return std::make_shared<lambertian>(
+	    std::make_shared<noise_texture>(scale));
 }
 
 std::shared_ptr<lambertian> make_random_albedo() {
@@ -66,7 +71,7 @@ std::shared_ptr<sphere> make_small_sphere(vec3 center, std::shared_ptr<material>
 hittable_list random_scene() {
 	hittable_list scene;
 
-	scene.objects.push_back(std::make_shared<sphere>(vec3(0, -1000, 0), 1000, make_checker_texture()));
+	scene.objects.push_back(std::make_shared<sphere>(vec3(0, -1000, 0), 1000, make_checker_material()));
 
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -108,8 +113,18 @@ hittable_list random_scene() {
 hittable_list two_spheres() {
 	hittable_list scene;
 
-	scene.objects.push_back(std::make_shared<sphere>(vec3(0, -10, 0), 10, make_checker_texture()));
-	scene.objects.push_back(std::make_shared<sphere>(vec3(0,  10, 0), 10, make_checker_texture()));
+	scene.objects.push_back(std::make_shared<sphere>(vec3(0, -10, 0), 10, make_checker_material()));
+	scene.objects.push_back(std::make_shared<sphere>(vec3(0,  10, 0), 10, make_checker_material()));
+
+	return scene;
+}
+
+hittable_list two_perlin_spheres() {
+	hittable_list scene;
+
+	auto material = make_perlin_noise_material(4);
+	scene.objects.push_back(std::make_shared<sphere>(vec3(0, -1000, 0), 1000, material));
+	scene.objects.push_back(std::make_shared<sphere>(vec3(0, 2, 0), 2, material));
 
 	return scene;
 }
@@ -121,6 +136,7 @@ hittable_list choose_scene(int scene) {
 		default:
 		case 1: return random_scene();
 		case 2: return two_spheres();
+		case 3: return two_perlin_spheres();
 	}
 }
 
@@ -128,7 +144,7 @@ int main() {
 	double start_time = 0;
 	double end_time = 1;
 	
-	bvh_node bvh(choose_scene(SCENE), start_time, end_time);
+	bvh_node bvh(choose_scene(3), start_time, end_time);
 
 	camera c(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0), M_PI / 8, ASPECT_RATIO, 0.1, 10);
 
