@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "aabb.hpp"
 #include "ray.hpp"
 #include "hittable.hpp"
@@ -15,6 +17,14 @@ struct sphere : hittable {
 	sphere(const vec3& center, double radius, std::shared_ptr<material> material_pointer)
 	    : center{center}, radius{radius}, material_pointer{material_pointer} {
 		velocity = vec3(0, 0, 0);
+	}
+
+	static void get_sphere_uv(const vec3& p, double& u, double& v) {
+		auto theta = acos(-p.y);
+		auto phi = atan2(-p.z, p.x) + M_PI;
+
+		u = phi / (2 * M_PI);
+		v = theta / M_PI;
 	}
 
 	virtual bool test_hit(const ray& r, double t_min, double t_max, hit& info) const override {
@@ -46,6 +56,7 @@ struct sphere : hittable {
 		info.point = r.at(info.parameter);
 		vec3 out_normal = unit_vector(info.point - current_center);
 		info.face_determination(r, out_normal);
+		get_sphere_uv(out_normal, info.u, info.v);
 		info.material_pointer = material_pointer;
 		
 		return true;

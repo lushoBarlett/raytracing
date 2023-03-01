@@ -9,6 +9,8 @@ struct material;
 
 struct hit {
 	double parameter;
+	double u;
+	double v;
 	vec3 point;
 	vec3 normal;
 	bool front_face;
