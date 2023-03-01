@@ -129,7 +129,7 @@ int main() {
 
 	std::cerr << "\rScanlines remaining: 0\nWriting..." << std::flush;
 
-	std::cout << "P3\n" << WIDTH << ' ' << HEIGHT << "\n255\n";
+	std::cout << "P6\n" << WIDTH << ' ' << HEIGHT << "\n255\n";
 	for (int j = HEIGHT - 1; j >= 0; --j)
 		for (int i = 0; i < WIDTH; ++i)
 			write_color(std::cout, screen[i][j], SAMPLES);
