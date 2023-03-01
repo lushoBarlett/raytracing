@@ -90,10 +90,9 @@ hittable_list random_scene() {
 	return world;
 }
 
+vec3 screen[WIDTH][HEIGHT];
+
 int main() {
-
-	std::cout << "P3\n" << WIDTH << ' ' << HEIGHT << "\n255\n";
-
 	hittable_list world = random_scene();
 
 	double start_time = 0;
@@ -103,10 +102,16 @@ int main() {
 
 	camera c(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0), M_PI / 8, ASPECT_RATIO, 0.1, 10);
 
+	int scanlines = HEIGHT - 1;
+
+	#pragma omp parallel for
 	for (int j = HEIGHT - 1; j >= 0; --j) {
-		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+
+		if (scanlines % 16 == 0)
+			std::cerr << "\rScanlines remaining: " << scanlines << ' ' << std::flush;
+
 		for (int i = 0; i < WIDTH; ++i) {
-			
+
 			vec3 color(0, 0, 0);
 			for (size_t s = 0; s < SAMPLES; s++) {
 				double h = (i + random_double()) / (WIDTH - 1);
@@ -115,8 +120,19 @@ int main() {
 				color += ray_color(r, bvh, MAX_RAY_DEPTH);
 			}
 			
-			write_color(std::cout, color, SAMPLES);
+			screen[i][j] = color;
 		}
+
+		#pragma omp atomic
+		scanlines--;
 	}
+
+	std::cerr << "\rScanlines remaining: 0\nWriting..." << std::flush;
+
+	std::cout << "P3\n" << WIDTH << ' ' << HEIGHT << "\n255\n";
+	for (int j = HEIGHT - 1; j >= 0; --j)
+		for (int i = 0; i < WIDTH; ++i)
+			write_color(std::cout, screen[i][j], SAMPLES);
+
 	std::cerr << "\nDone.\n";
 }
