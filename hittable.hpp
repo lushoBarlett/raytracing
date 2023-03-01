@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "aabb.hpp"
 #include "ray.hpp"
 
 struct material;
@@ -21,4 +22,5 @@ struct hit {
 
 struct hittable {
 	virtual bool test_hit(const ray& r, double t_min, double t_max, hit& info) const = 0;
+	virtual bool bounding_box(double t_min, double t_max, aabb& output_box) const = 0;
 };

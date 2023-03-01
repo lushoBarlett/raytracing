@@ -16,6 +16,10 @@ inline double random_double(double min = 0, double max = 1) {
 	return distribution(generator);
 }
 
+inline double random_int(int min, int max) {
+	return static_cast<int>(random_double(min, max + 1));
+}
+
 inline vec3 vec3_unit_map(const vec3& v) {
 	return 0.5 * (v + vec3(1, 1, 1));
 }

@@ -26,4 +26,22 @@ struct hittable_list : hittable {
 
 		return hit_anything;
 	}
+
+	virtual bool bounding_box(double t_min, double t_max, aabb& output_box) const override {
+		if (objects.empty())
+			return false;
+		
+		bool first = true;
+		for (const auto& object : objects) {
+
+			aabb child_box;
+			if (!object->bounding_box(t_min, t_max, child_box))
+				return false;
+
+			output_box = first ? child_box : surrounding_box(output_box, child_box);
+			first = false;
+		}
+		
+		return true;
+	}
 };

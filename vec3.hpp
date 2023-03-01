@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <exception>
+#include <cassert>
 
 struct vec3 {
 	float x;
@@ -12,6 +13,15 @@ struct vec3 {
 	vec3() : x{0}, y{0}, z{0} {}
 	vec3(float x, float y, float z) : x{x}, y{y}, z{z} {}
 	vec3(const vec3& v) : x{v.x}, y{v.y}, z{v.z} {}
+
+	float operator[](int s) const {
+		switch (s) {
+			case 0: return x;
+			case 1: return y;
+			case 2: return z;
+			default: assert(0);
+		}
+	}
 
 	vec3 operator-() const {
 		return vec3(-x, -y, -z);

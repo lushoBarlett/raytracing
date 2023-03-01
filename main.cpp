@@ -2,6 +2,7 @@
 #include <memory>
 #include <random>
 
+#include "bvh_node.hpp"
 #include "vec3.hpp"
 #include "image.hpp"
 #include "ray.hpp"
@@ -95,6 +96,11 @@ int main() {
 
 	hittable_list world = random_scene();
 
+	double start_time = 0;
+	double end_time = 1;
+	
+	bvh_node bvh(world, start_time, end_time);
+
 	camera c(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0), M_PI / 8, ASPECT_RATIO, 0.1, 10);
 
 	for (int j = HEIGHT - 1; j >= 0; --j) {
@@ -106,7 +112,7 @@ int main() {
 				double h = (i + random_double()) / (WIDTH - 1);
 				double v = (j + random_double()) / (HEIGHT - 1);
 				ray r = c.shoot_ray(h, v);
-				color += ray_color(r, world, MAX_RAY_DEPTH);
+				color += ray_color(r, bvh, MAX_RAY_DEPTH);
 			}
 			
 			write_color(std::cout, color, SAMPLES);

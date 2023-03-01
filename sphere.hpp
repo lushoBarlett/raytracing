@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aabb.hpp"
 #include "ray.hpp"
 #include "hittable.hpp"
 
@@ -47,6 +48,19 @@ struct sphere : hittable {
 		info.face_determination(r, out_normal);
 		info.material_pointer = material_pointer;
 		
+		return true;
+	}
+
+	virtual bool bounding_box(double t_min, double t_max, aabb& output_box) const override {
+
+		const auto first_center = center + t_min * velocity;
+		const auto second_center = center + t_max * velocity;
+
+		const auto first_box = aabb(first_center - vec3(radius, radius, radius), first_center + vec3(radius, radius, radius));
+		const auto second_box = aabb(second_center - vec3(radius, radius, radius), second_center + vec3(radius, radius, radius));
+
+		output_box = surrounding_box(first_box, second_box);
+
 		return true;
 	}
 };
