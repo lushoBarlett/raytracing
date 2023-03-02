@@ -35,10 +35,13 @@ struct rect : hittable {
 
 		const auto p = r.at(t);
 
-		const auto w = p[(plane + 1) % 3];
-		const auto h = p[(plane + 2) % 3];
+		auto w = (plane + 1) % 3;
+		auto h = (plane + 2) % 3;
 
-		if (w < left || right < w || h < down || up < h)
+		if (w > h)
+			std::swap(w, h);
+
+		if (p[w] < left || right < p[w] || p[h] < down || up < p[h])
 			return true;
 
 		hit = t;

@@ -13,14 +13,14 @@
 #include "material.hpp"
 #include "rectangles.hpp"
 
-constexpr double ASPECT_RATIO = (double)3 / 2;
-constexpr int WIDTH = 700;
+constexpr double ASPECT_RATIO = (double)1;
+constexpr int WIDTH = 200;
 constexpr int HEIGHT = WIDTH / ASPECT_RATIO;
 
-constexpr int SAMPLES = 20;
-constexpr int MAX_RAY_DEPTH = 5;
+constexpr int SAMPLES = 500;
+constexpr int MAX_RAY_DEPTH = 2;
 
-constexpr int SCENE = 4;
+constexpr int SCENE = 5;
 
 vec3 ray_color(const ray& r, const vec3& background, const hittable& scene, int depth = 1) {
 	if (depth <= 0)
@@ -138,6 +138,24 @@ hittable_list simple_light() {
 	return scene;
 }
 
+hittable_list cornell_box() {
+	hittable_list scene;
+
+	auto red = std::make_shared<lambertian>(vec3(.65, .05, .05));
+	auto white = std::make_shared<lambertian>(vec3(.73, .73, .73));
+	auto green = std::make_shared<lambertian>(vec3(.12, .45, .15));
+	auto light = std::make_shared<diffuse_light>(vec3(15, 15, 15));
+
+	scene.objects.push_back(std::make_shared<yz_rect>(vec3(-50,  0, -50), 100, 100, green));
+	scene.objects.push_back(std::make_shared<yz_rect>(vec3( 50,  0, -50), 100, 100, red));
+	scene.objects.push_back(std::make_shared<xz_rect>(vec3( 0, -50, -50), 100, 100, white));
+	scene.objects.push_back(std::make_shared<xz_rect>(vec3( 0,  50, -50), 100, 100, white));
+	scene.objects.push_back(std::make_shared<xy_rect>(vec3( 0,  0, -100), 100, 100, white));
+	scene.objects.push_back(std::make_shared<xz_rect>(vec3( 0,  49.5, -50), 20, 20, light));
+
+	return scene;
+}
+
 vec3 screen[WIDTH][HEIGHT];
 
 hittable_list choose_scene(int scene) {
@@ -147,6 +165,7 @@ hittable_list choose_scene(int scene) {
 		case 2: return two_spheres();
 		case 3: return two_perlin_spheres();
 		case 4: return simple_light();
+		case 5: return cornell_box();
 	}
 }
 
@@ -154,11 +173,11 @@ int main() {
 	double start_time = 0;
 	double end_time = 1;
 
-	vec3 background = vec3(0, 0, 0);
+	vec3 background = vec3(0.5, 0.5, 0.5);
 	
 	bvh_node bvh(choose_scene(SCENE), start_time, end_time);
 
-	camera c(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0), M_PI / 8, ASPECT_RATIO, 0.1, 10);
+	camera c(vec3(0, 0, 100), vec3(0, 0, -100), vec3(0, 1, 0), M_PI / 4, ASPECT_RATIO, 0.1, 10);
 
 	int scanlines = HEIGHT - 1;
 
