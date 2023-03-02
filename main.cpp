@@ -10,9 +10,7 @@
 #include "hittable_list.hpp"
 #include "camera.hpp"
 #include "utils.hpp"
-#include "lambertian.hpp"
-#include "metal.hpp"
-#include "dielectric.hpp"
+#include "material.hpp"
 
 constexpr double ASPECT_RATIO = (double)3 / 2;
 constexpr int WIDTH = 700;
@@ -144,7 +142,7 @@ int main() {
 	double start_time = 0;
 	double end_time = 1;
 	
-	bvh_node bvh(choose_scene(3), start_time, end_time);
+	bvh_node bvh(choose_scene(SCENE), start_time, end_time);
 
 	camera c(vec3(13, 2, 3), vec3(0, 0, 0), vec3(0, 1, 0), M_PI / 8, ASPECT_RATIO, 0.1, 10);
 
