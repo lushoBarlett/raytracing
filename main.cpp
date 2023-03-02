@@ -21,7 +21,7 @@ constexpr int MAX_RAY_DEPTH = 5;
 
 constexpr int SCENE = 1;
 
-vec3 ray_color(const ray& r, const hittable& world, int depth = 1) {
+vec3 ray_color(const ray& r, const vec3& background, const hittable& scene, int depth = 1) {
 	const vec3 white(1, 1, 1);
 	const vec3 lightblue(0.5, 0.7, 1);
 
@@ -29,17 +29,17 @@ vec3 ray_color(const ray& r, const hittable& world, int depth = 1) {
 		return vec3(0, 0, 0);
 
 	hit info;
-	if (world.test_hit(r, 0.01, INFINITY, info)) {
-		vec3 attenuation;
-		ray scattered;
-		if (info.material_pointer->scatter(r, info, attenuation, scattered))
-			return attenuation * ray_color(scattered, world, depth - 1);
-		return vec3(0, 0, 0);
-	}
+	if (!scene.test_hit(r, 0.01, INFINITY, info))
+		return background;
 
-	vec3 unit_direction = unit_vector(r.direction);
-	double t = unit_map(unit_direction.y);
-	return vec3_lerp(white, lightblue, t);
+	vec3 emitted = info.material_pointer->emitted(info.u, info.v, info.point);
+	vec3 attenuation;
+	ray scattered;
+
+	if (!info.material_pointer->scatter(r, info, attenuation, scattered))
+		return emitted;
+
+	return emitted + attenuation * ray_color(scattered, background, scene, depth - 1);
 }
 
 std::shared_ptr<lambertian> make_checker_material() {
@@ -141,6 +141,8 @@ hittable_list choose_scene(int scene) {
 int main() {
 	double start_time = 0;
 	double end_time = 1;
+
+	vec3 background = vec3(0.7, 0.8, 1);
 	
 	bvh_node bvh(choose_scene(SCENE), start_time, end_time);
 
@@ -161,7 +163,7 @@ int main() {
 				double h = (i + random_double()) / (WIDTH - 1);
 				double v = (j + random_double()) / (HEIGHT - 1);
 				ray r = c.shoot_ray(h, v);
-				color += ray_color(r, bvh, MAX_RAY_DEPTH);
+				color += ray_color(r, background, bvh, MAX_RAY_DEPTH);
 			}
 			
 			screen[i][j] = color;
