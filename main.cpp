@@ -11,6 +11,7 @@
 #include "camera.hpp"
 #include "utils.hpp"
 #include "material.hpp"
+#include "rectangles.hpp"
 
 constexpr double ASPECT_RATIO = (double)3 / 2;
 constexpr int WIDTH = 700;
@@ -19,12 +20,9 @@ constexpr int HEIGHT = WIDTH / ASPECT_RATIO;
 constexpr int SAMPLES = 20;
 constexpr int MAX_RAY_DEPTH = 5;
 
-constexpr int SCENE = 1;
+constexpr int SCENE = 4;
 
 vec3 ray_color(const ray& r, const vec3& background, const hittable& scene, int depth = 1) {
-	const vec3 white(1, 1, 1);
-	const vec3 lightblue(0.5, 0.7, 1);
-
 	if (depth <= 0)
 		return vec3(0, 0, 0);
 
@@ -127,6 +125,19 @@ hittable_list two_perlin_spheres() {
 	return scene;
 }
 
+hittable_list simple_light() {
+	hittable_list scene;
+
+	auto material = make_perlin_noise_material(4);
+	scene.objects.push_back(std::make_shared<sphere>(vec3(0, -1000, 0), 1000, material));
+	scene.objects.push_back(std::make_shared<sphere>(vec3(0, 2, 0), 2, material));
+
+	auto light = std::make_shared<diffuse_light>(vec3(4, 4, 4));
+	scene.objects.push_back(std::make_shared<xy_rect>(vec3(1.5, 1.5, -2), 2, 2, light));
+
+	return scene;
+}
+
 vec3 screen[WIDTH][HEIGHT];
 
 hittable_list choose_scene(int scene) {
@@ -135,6 +146,7 @@ hittable_list choose_scene(int scene) {
 		case 1: return random_scene();
 		case 2: return two_spheres();
 		case 3: return two_perlin_spheres();
+		case 4: return simple_light();
 	}
 }
 
@@ -142,7 +154,7 @@ int main() {
 	double start_time = 0;
 	double end_time = 1;
 
-	vec3 background = vec3(0.7, 0.8, 1);
+	vec3 background = vec3(0, 0, 0);
 	
 	bvh_node bvh(choose_scene(SCENE), start_time, end_time);
 
